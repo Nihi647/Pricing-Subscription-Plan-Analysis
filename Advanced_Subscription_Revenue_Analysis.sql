@@ -42,20 +42,27 @@ FROM monthly_revenue;
 
 /* =========================================================
    KPI 2: CHURN RATE & ARPU BY SUBSCRIPTION PLAN
-   (Simplified aggregation – no unnecessary CTE)
+   (Corrected using CTE to reuse churn_rate_pct)
    ========================================================= */
 
+WITH churn_metrics AS (
+    SELECT 
+        subscription_plan,
+        ROUND(SUM(is_churned) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
+        ROUND(SUM(revenue) / COUNT(*), 2) AS arpu
+    FROM subscriptions
+    GROUP BY subscription_plan
+)
 SELECT 
     subscription_plan,
-    ROUND(SUM(is_churned) * 100.0 / COUNT(*), 2) AS churn_rate_pct,
-    ROUND(SUM(revenue) / COUNT(*), 2) AS arpu,
+    churn_rate_pct,
+    arpu,
     CASE
-        WHEN SUM(is_churned) * 100.0 / COUNT(*) > 20 THEN 'High Risk'
-        WHEN SUM(is_churned) * 100.0 / COUNT(*) BETWEEN 10 AND 20 THEN 'Medium Risk'
+        WHEN churn_rate_pct > 20 THEN 'High Risk'
+        WHEN churn_rate_pct BETWEEN 10 AND 20 THEN 'Medium Risk'
         ELSE 'Healthy'
     END AS retention_status
-FROM subscriptions
-GROUP BY subscription_plan
+FROM churn_metrics
 ORDER BY churn_rate_pct DESC;
 
 
