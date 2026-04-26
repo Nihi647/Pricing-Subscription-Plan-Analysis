@@ -1,4 +1,4 @@
-# 📊 SaaS Subscription & Pricing Audit
+# 📊 Pricing and Subscription plan Analysis
 ### Identifying Growth Opportunities Through Data-Driven Insights
 
 ---
